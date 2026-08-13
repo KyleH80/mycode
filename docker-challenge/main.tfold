@@ -1,0 +1,43 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "docker" {}
+
+variable "internal_port" {
+  type        = number
+  default     = 9876
+  description = "Internal port exposed by the container"
+}
+
+variable "external_port" {
+  type        = number
+  default     = 5432
+  description = "External port mapped on the host"
+}
+
+variable "container_name" {
+  type        = string
+  default     = "Alta3ResearchWebService"
+  description = "Name of the Docker container"
+}
+
+resource "docker_image" "simplegoservice" {
+  name = "registry.gitlab.com/alta3/simplegoservice"
+}
+
+resource "docker_container" "simplegoservice_container" {
+  name  = var.container_name
+  image = docker_image.simplegoservice.latest
+
+  ports {
+    internal = var.internal_port
+    external = var.external_port
+  }
+}
+
